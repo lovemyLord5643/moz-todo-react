@@ -1,8 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
 export default function Todo(props) {
   const [isEditing, setEditing] = useState(false);
   const [newName, setNewname] = useState('');
+
+  const wasEditing = usePrevious(isEditing);
 
   // These refs have a default value of null because they will not have value until we attach them to their respective elements. 
   const editFieldRef = useRef(null);
@@ -84,9 +94,14 @@ export default function Todo(props) {
   );
 
   useEffect(() => {
-    console.log('side effect');
-  });
-  console.log('main render');
+    // We also pass an array into useEffect() as a second argument. This array is a list of values useEffect() should depend on. With these values included, useEffect() will only run when one of those values changes. We only want to change focus when the value of isEditing changes.
+    if (!wasEditing && isEditing) {
+      editFieldRef.current.focus();
+    }
+    if (wasEditing && !isEditing) {
+      editButtonRef.current.focus();
+    }
+  },  [wasEditing, isEditing]);
   return (
     <li className="todo">
       {isEditing ? editingTemplate : viewTemplate}
