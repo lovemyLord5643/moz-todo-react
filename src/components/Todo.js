@@ -1,9 +1,12 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function Todo(props) {
   const [isEditing, setEditing] = useState(false);
   const [newName, setNewname] = useState('');
 
+  // These refs have a default value of null because they will not have value until we attach them to their respective elements. 
+  const editFieldRef = useRef(null);
+  const editButtonRef = useRef(null);
   function handleChange(e) {
     setNewname(e.target.value);
   }
@@ -26,7 +29,9 @@ export default function Todo(props) {
           className="todo-text"
           type="text"
           value={newName}
-          onChange={handleChange} />
+          onChange={handleChange}
+          ref={editFieldRef}  
+        />
       </div>
       <div className="btn-group">
         <button
@@ -62,7 +67,9 @@ export default function Todo(props) {
           className="btn"
           onClick={() => {
             setEditing(true);
-          }}>
+          }}
+          ref={editButtonRef}  
+        >
           Edit <span className="visually-hidden">{props.name}</span>
         </button>
         <button
@@ -76,6 +83,10 @@ export default function Todo(props) {
     </div>
   );
 
+  useEffect(() => {
+    console.log('side effect');
+  });
+  console.log('main render');
   return (
     <li className="todo">
       {isEditing ? editingTemplate : viewTemplate}
