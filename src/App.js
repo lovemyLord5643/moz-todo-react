@@ -1,8 +1,16 @@
-import React, { useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Todo from "./components/Todo";
 import Form from './components/Form';
 import FilterButton from "./components/FilterButton";
 import { nanoid } from 'nanoid';
+
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
 
 // We are defining these constants outside our App() function because if they were defined inside it, they would be recalculated every time the <App /> component re-renders, and we don't want that. This information will never change no matter what our application does.
 const FILTER_MAP = {
@@ -80,6 +88,14 @@ function App(props) {
 
   const tasksNoun = taskList.length === 1 ? 'task' : 'tasks';
   const headingText = `${taskList.length} ${tasksNoun} remaining`;
+  const listHeadingRef = useRef(null);
+  const prevTaskLength = usePrevious(tasks.length)
+
+  useEffect(() => {
+    if (tasks.length - prevTaskLength === -1) {
+      listHeadingRef.current.focus();
+    }
+  }, [tasks.length, prevTaskLength])
   return (
     <div className="todoapp stack-large">
       <h1>TodoMatic</h1>
@@ -88,7 +104,7 @@ function App(props) {
         {/* The aria-pressed attribute used in our earlier code snippet has a value of "true" because aria-pressed is not a true boolean attribute in the way checked is. */}
         {filterList}
       </div>
-      <h2 id="list-heading">
+      <h2 id="list-heading" tabIndex='-1' ref={listHeadingRef}>
         {headingText}
       </h2>
       <ul
